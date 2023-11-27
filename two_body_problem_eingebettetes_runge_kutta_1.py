@@ -79,7 +79,7 @@ def eing_runge_kutta(u0, tau_0, A, b1, b2, nbr_Steps, tol):
             
 plt.close('all')
 
-u0 = np.array([1,0,-100*10**(-9),150000000*10**(-4)]) #no idea which values to choose
+u0 = np.array([1,0,-110*10**(-6),115250000*10**(-4)]) #no idea which values to choose
 tau_0 = 1000 #time intervall we choose
 nbr_Steps = 5000 #iteration steps
 tol = 1e-2
