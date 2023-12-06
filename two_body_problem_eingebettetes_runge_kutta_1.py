@@ -3,23 +3,19 @@
 #%%
 
 import numpy as np
-from scipy.optimize import fsolve
 import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
+import time
 
 #%% Two Body Problem
 
 def F_call(u):
     #return F ausgewertet an der Stelle u
-    #G = 6.6743015*(10**(-11)) --> umwandeln in AE *10**(-12)
-    #M = #Masse Stern
-    G = 6.6738*(10**(-11))*(10**(-12))
-    M = 1.989*(10**30)
+    G = 2.959795663*(10**(-4))
+    M = 1
     r = np.linalg.norm(u[0:2])
     a = -G*M/(r**3)
-    A = np.array([[0,0,1,0],[0,0,0,1],[a,0,0,0],[0,a,0,0]])
-    
-    return A@np.array(u)
+
+    return np.array([u[2],u[3],a*u[0],a*u[1]])
 
 #%% Eingebettetes Runge-Kutta-Verfahren, Stufen 2 und 4
 
@@ -79,42 +75,34 @@ def eing_runge_kutta(u0, tau_0, A, b1, b2, nbr_Steps, tol):
             
 plt.close('all')
 
-u0 = np.array([1,0,-110*10**(-6),115250000*10**(-4)]) #no idea which values to choose
-tau_0 = 1000 #time intervall we choose
+u0 = np.array([1,0,0,21*24*60*60*(10**(-8))])
+tau_0 = 100 #time intervall we choose
 nbr_Steps = 5000 #iteration steps
-tol = 1e-2
+tol = 1e-4
 
 # A und b für Runge-Kutta
 A = np.array([[0,0,0,0],[1/2,0,0,0],[0,1/2,0,0],[0,0,1,0]])
 b1 = np.array([1/2,1/2])
 b2 = np.array([1/6,1/3,1/3,1/6])
 
-
+#start = time.time()
 runge_kutta_res = eing_runge_kutta(u0, tau_0, A, b1, b2, nbr_Steps, tol)
+#end = time.time()
+#print(end-start)
 
 figure, ax = plt.subplots()
+plt.xlabel('AE')
+plt.ylabel('AE')
+
 x_runge_kutta = runge_kutta_res[:,0]
 y_runge_kutta = runge_kutta_res[:,1]
 
-plt.plot(x_runge_kutta, y_runge_kutta, 'midnightblue', label='Runge-Kutta')
+plt.plot(x_runge_kutta, y_runge_kutta, 'midnightblue', label='eingebettetes Runge-Kutta')
 
-x_neg = runge_kutta_res[0,0]
-for i in range(1,len(runge_kutta_res)):
-    if runge_kutta_res[i,0] < x_neg:
-        x_neg = runge_kutta_res[i,0]
-x_pos = runge_kutta_res[0,0]
-for i in range(1,len(runge_kutta_res)):
-    if runge_kutta_res[i,0] > x_pos:
-        x_pos = runge_kutta_res[i,0]
-        
-y_neg = runge_kutta_res[0,1]
-for i in range(1,len(runge_kutta_res)):
-    if runge_kutta_res[i,1] < y_neg:
-        y_neg = runge_kutta_res[i,1]
-y_pos = runge_kutta_res[0,1]
-for i in range(1,len(runge_kutta_res)):
-    if runge_kutta_res[i,1] > y_pos:
-        y_pos = runge_kutta_res[i,1]
+x_neg = min(runge_kutta_res[:,0])
+x_pos = max(runge_kutta_res[:,0])
+y_neg = min(runge_kutta_res[:,1])
+y_pos = max(runge_kutta_res[:,1])
         
 ax.set_xlim(x_neg, x_pos)
 ax.set_ylim(y_neg, y_pos)
