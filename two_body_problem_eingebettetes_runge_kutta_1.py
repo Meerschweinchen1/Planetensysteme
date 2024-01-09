@@ -19,12 +19,16 @@ def F_call(u):
 
 #%% Eingebettetes Runge-Kutta-Verfahren, Stufen 2 und 4
 
-def eing_runge_kutta(u0, tau_0, A, b1, b2, nbr_Steps, tol):
+def eing_runge_kutta(u0, tau_0, A, b1, b2, time, tol):
+    time = time * (365.2425)
     u_tk = u0
     res = []
     res.append(u_tk)
     
-    for k in range(1, nbr_Steps):
+    t = 0
+    steps = 0
+    
+    while t < time:
         tau = tau_0
         f_i = []
         for i in range(4):
@@ -34,18 +38,15 @@ def eing_runge_kutta(u0, tau_0, A, b1, b2, nbr_Steps, tol):
             f_i.append(F_call(u_tk + tau*sum))
         
         sum1 = 0
-        for i in range(2):
-            sum1 += b1[i]*f_i[i]
-        u_tk1_Plus1 = u_tk + tau*sum1
         sum2 = 0
         for i in range(4):
+            sum1 += b1[i]*f_i[i]
             sum2 += b2[i]*f_i[i]
+        u_tk1_Plus1 = u_tk + tau*sum1
         u_tk2_Plus1 = u_tk + tau*sum2
         
-        while np.linalg.norm(u_tk1_Plus1 - u_tk2_Plus1) > tol:   #!!!would it be better, if I would look 
-                                                                #at the differences within the singe components 
-                                                                #of the vector instead of looking at the norm 
-                                                                #of the difference?
+        while np.linalg.norm(u_tk1_Plus1 - u_tk2_Plus1) > tol:
+            steps += 1
             tau = 0.8 * tau
             
             f_i = []
@@ -55,20 +56,21 @@ def eing_runge_kutta(u0, tau_0, A, b1, b2, nbr_Steps, tol):
                     sum += A[i,j]*f_i[j]
                 f_i.append(F_call(u_tk + tau*sum))
             sum1 = 0
-            for i in range(2):
-                sum1 += b1[i]*f_i[i]
-            u_tk1_Plus1 = u_tk + tau*sum1
             sum2 = 0
             for i in range(4):
+                sum1 += b1[i]*f_i[i]
                 sum2 += b2[i]*f_i[i]
+            u_tk1_Plus1 = u_tk + tau*sum1
             u_tk2_Plus1 = u_tk + tau*sum2
-            
+        
         u_tkPlus1 = u_tk2_Plus1
         res.append(u_tkPlus1)
          
         # Prepare for next step
         u_tk = u_tkPlus1
-        
+        t += tau 
+    
+    print(steps)
     return np.array(res)
             
 #%% Visualisation           
@@ -76,17 +78,17 @@ def eing_runge_kutta(u0, tau_0, A, b1, b2, nbr_Steps, tol):
 plt.close('all')
 
 u0 = np.array([1,0,0,21*24*60*60*(10**(-8))])
-tau_0 = 100 #time intervall we choose
-nbr_Steps = 5000 #iteration steps
-tol = 1e-4
+tau_0 = 100 #time intervall we choose in days
+Time = 10 #whole time intervall in years
+tol = 1e-5
 
 # A und b für Runge-Kutta
 A = np.array([[0,0,0,0],[1/2,0,0,0],[0,1/2,0,0],[0,0,1,0]])
-b1 = np.array([1/2,1/2])
+b1 = np.array([1/2,1/2,0,0])
 b2 = np.array([1/6,1/3,1/3,1/6])
 
 #start = time.time()
-runge_kutta_res = eing_runge_kutta(u0, tau_0, A, b1, b2, nbr_Steps, tol)
+runge_kutta_res = eing_runge_kutta(u0, tau_0, A, b1, b2, Time, tol)
 #end = time.time()
 #print(end-start)
 
