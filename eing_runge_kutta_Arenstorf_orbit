@@ -54,10 +54,7 @@ def eing_runge_kutta(u0, tau_0, A, b1, b2, T, tol):
             sum2 += b2[i]*f_i[i]
         u_tk2_Plus1 = u_tk + tau*sum2
         
-        while np.linalg.norm(u_tk1_Plus1 - u_tk2_Plus1) > tol:   #!!!would it be better, if I would look 
-                                                                #at the differences within the singe components 
-                                                                #of the vector instead of looking at the norm 
-                                                                #of the difference?
+        while np.linalg.norm(u_tk1_Plus1 - u_tk2_Plus1) > tol:  
             steps += 1
             tau = 0.8 * tau
             
@@ -128,5 +125,4 @@ ax.set_aspect("equal")
 
 ax.legend()
 
-plt.show()           
-            
+plt.show()    
