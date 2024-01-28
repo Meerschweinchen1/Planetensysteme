@@ -113,11 +113,4 @@ ax.legend()
 
 plt.show()           
             
-            
-            
-            
-            
-            
-            
-            
-            
+           
